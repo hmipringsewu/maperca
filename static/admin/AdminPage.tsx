@@ -87,7 +87,7 @@ export function AdminPage() {
     <main className="admin-shell">
       <header className="admin-header">
         <div>
-          <p className="section-label">ADMIN MAPERCA</p>
+          <p className="section-label">ADMIN HMI PRINGSEWU</p>
           <h1>Data pendaftar</h1>
           <p className="admin-muted">Masuk sebagai {session.email}</p>
         </div>

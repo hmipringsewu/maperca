@@ -33,7 +33,7 @@ function downloadCsv(rows: Registrant[]) {
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");
   link.href = url;
-  link.download = `pendaftar-maperca-${new Date().toLocaleDateString("en-CA", jakarta)}.csv`;
+  link.download = `pendaftar-open-recruitment-${new Date().toLocaleDateString("en-CA", jakarta)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
