@@ -84,13 +84,46 @@ export async function signOut(session: Session) {
   await request("/auth/v1/logout", { method: "POST" }, session.accessToken).catch(() => undefined);
 }
 
-export async function listRegistrants(session: Session): Promise<Registrant[]> {
-  const response = await request("/rest/v1/rpc/maperca_admin_list", { method: "POST", body: "{}" }, session.accessToken);
+async function adminRpc<T>(session: Session, name: string, args: Record<string, unknown>, fallback: string): Promise<T> {
+  const response = await request(`/rest/v1/rpc/${name}`, { method: "POST", body: JSON.stringify(args) }, session.accessToken);
   if (response.status === 401) throw new SessionExpiredError();
-  const data = (await response.json().catch(() => null)) as (Registrant[] & { code?: string; message?: string }) | null;
-  if (!response.ok || !Array.isArray(data)) {
+  const data = (await response.json().catch(() => null)) as (T & { code?: string; message?: string }) | null;
+  if (!response.ok || data === null) {
     // P0001 is our own `raise exception`; other codes are database internals.
-    throw new Error(data?.code === "P0001" && data.message ? data.message : "Data pendaftar belum bisa dimuat. Coba lagi.");
+    throw new Error(data?.code === "P0001" && data.message ? data.message : fallback);
   }
   return data;
+}
+
+export function listRegistrants(session: Session) {
+  return adminRpc<Registrant[]>(session, "maperca_admin_list", {}, "Data pendaftar belum bisa dimuat. Coba lagi.");
+}
+
+/** The fields an admin may correct. Receipt number, timestamps and follow status stay as recorded. */
+export type RegistrantEdit = Pick<
+  Registrant,
+  "nama" | "hp" | "kampus" | "jurusan" | "tempat_lahir" | "tanggal_lahir" | "tanggal_kuliah" | "alamat"
+>;
+
+export function updateRegistrant(session: Session, id: string, values: RegistrantEdit) {
+  return adminRpc<Registrant>(
+    session,
+    "maperca_admin_update",
+    {
+      p_id: id,
+      p_nama: values.nama,
+      p_kampus: values.kampus,
+      p_hp: values.hp,
+      p_alamat: values.alamat,
+      p_jurusan: values.jurusan,
+      p_tempat_lahir: values.tempat_lahir,
+      p_tanggal_lahir: values.tanggal_lahir,
+      p_tanggal_kuliah: values.tanggal_kuliah,
+    },
+    "Perubahan belum tersimpan. Coba lagi.",
+  );
+}
+
+export async function deleteRegistrant(session: Session, id: string) {
+  await adminRpc<{ deleted: boolean }>(session, "maperca_admin_delete", { p_id: id }, "Pendaftar belum terhapus. Coba lagi.");
 }

@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { Check, Download, Search } from "lucide-react";
-import type { Registrant } from "../../lib/admin-api";
+import { Check, Download, Pencil, Search, Trash2 } from "lucide-react";
+import type { Registrant, RegistrantEdit } from "../../lib/admin-api";
 import { toCsv } from "../../lib/csv";
+import { DeleteDialog, EditDialog } from "./RegistrantDialogs";
 
 const jakarta = { timeZone: "Asia/Jakarta" } as const;
 const dateFormat = new Intl.DateTimeFormat("id-ID", { ...jakarta, day: "numeric", month: "long", year: "numeric" });
@@ -40,8 +41,16 @@ function downloadCsv(rows: Registrant[]) {
   URL.revokeObjectURL(url);
 }
 
-export function RegistrantTable({ rows }: { rows: Registrant[] }) {
+type Props = {
+  rows: Registrant[];
+  onSave: (id: string, values: RegistrantEdit) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+};
+
+export function RegistrantTable({ rows, onSave, onDelete }: Props) {
   const [query, setQuery] = useState("");
+  const [editing, setEditing] = useState<Registrant | null>(null);
+  const [deleting, setDeleting] = useState<Registrant | null>(null);
   const needle = query.trim().toLowerCase();
   const visible = useMemo(
     () => needle
@@ -94,6 +103,7 @@ export function RegistrantTable({ rows }: { rows: Registrant[] }) {
                 <th scope="col">Masuk kuliah</th>
                 <th scope="col">Alamat</th>
                 <th scope="col">Follow</th>
+                <th scope="col">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -112,11 +122,38 @@ export function RegistrantTable({ rows }: { rows: Registrant[] }) {
                       ? <span className="admin-badge done"><Check size={13} aria-hidden="true" /> Selesai</span>
                       : <span className="admin-badge">Belum</span>}
                   </td>
+                  <td>
+                    <div className="admin-row-actions">
+                      <button type="button" className="admin-icon" aria-label={`Ubah data ${row.nama}`} onClick={() => setEditing(row)}>
+                        <Pencil size={16} aria-hidden="true" />
+                      </button>
+                      <button type="button" className="admin-icon danger" aria-label={`Hapus ${row.nama}`} onClick={() => setDeleting(row)}>
+                        <Trash2 size={16} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+
+      {editing && (
+        <EditDialog
+          key={editing.id}
+          row={editing}
+          onClose={() => setEditing(null)}
+          onSave={async (values) => { await onSave(editing.id, values); setEditing(null); }}
+        />
+      )}
+      {deleting && (
+        <DeleteDialog
+          key={deleting.id}
+          row={deleting}
+          onClose={() => setDeleting(null)}
+          onDelete={async () => { await onDelete(deleting.id); setDeleting(null); }}
+        />
       )}
     </>
   );

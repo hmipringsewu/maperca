@@ -51,7 +51,10 @@ npm run preview:pages   # buka http://localhost:4173
 - `app/api/daftar/` dan `db/` adalah jalur lama (Cloudflare D1). Formulir sudah tidak memanggilnya.
 
 ### Halaman admin
-Panitia melihat data pendaftar di `/admin/` (kode di `static/admin/`): login, tabel, pencarian, unduh CSV.
+Panitia mengelola data pendaftar di `/admin/` (kode di `static/admin/`): login, tabel, pencarian, unduh CSV, ubah data, dan hapus.
+
+- Ubah dan hapus lewat fungsi `maperca_admin_update` dan `maperca_admin_delete`. Validasinya sama dengan formulir publik karena keduanya memakai `maperca.clean_registration`.
+- Setiap perubahan dan penghapusan tercatat di tabel `maperca.audit_log`: siapa, kapan, dan isi data sebelum diubah. Data yang terhapus bisa disalin kembali dari kolom `before`.
 
 - Siapa pun bisa membuat akun, tapi hanya email yang tercatat di tabel `maperca.admins` yang bisa membaca data. Pengecekan ada di fungsi `maperca_admin_list`, bukan di tampilan.
 - Menambah admin: jalankan di SQL Editor Supabase `insert into maperca.admins (email) values ('nama@email.com');`, lalu orangnya membuat akun di halaman admin dan membuka tautan konfirmasi di emailnya.
