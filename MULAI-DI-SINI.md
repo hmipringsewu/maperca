@@ -69,7 +69,8 @@ Panitia mengelola data pendaftar di `/admin/` (kode di `static/admin/`): login, 
 - app/api/daftar/route.ts: validasi dan penyimpanan data pendaftar.
 - db/schema.ts: struktur database.
 - drizzle/: migrasi database.
-- public/images/: logo HMI, tulisan MAPERCA, dan poster.
+- public/images/: logo HMI, judul "Open Recruitment", foto grup, dan logo LTMI.
+- design/build_open_recruitment.py: membuat ulang gambar judul Open Recruitment dari huruf asli di `design/` (butuh numpy, opencv-python, Pillow).
 - .openai/hosting.json: identitas dan konfigurasi hosting website yang sekarang.
 
 ## Catatan follow
