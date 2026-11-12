@@ -14,5 +14,15 @@ export default defineConfig({
   plugins: [react()],
   resolve: { alias: { "@": projectRoot } },
   css: { postcss: projectRoot },
-  build: { outDir: "../dist-pages", emptyOutDir: true },
+  build: {
+    outDir: "../dist-pages",
+    emptyOutDir: true,
+    rollupOptions: {
+      // Two pages: the public form at / and the committee view at /admin/.
+      input: {
+        main: `${projectRoot}static/index.html`,
+        admin: `${projectRoot}static/admin/index.html`,
+      },
+    },
+  },
 });

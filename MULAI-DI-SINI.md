@@ -50,6 +50,14 @@ npm run preview:pages   # buka http://localhost:4173
 - Data pendaftar ada di tabel `registrations` pada schema `maperca`. Lihat lewat dashboard Supabase: Table Editor, lalu ganti schema ke `maperca`. Tabel ini tidak bisa dibaca dari internet.
 - `app/api/daftar/` dan `db/` adalah jalur lama (Cloudflare D1). Formulir sudah tidak memanggilnya.
 
+### Halaman admin
+Panitia melihat data pendaftar di `/admin/` (kode di `static/admin/`): login, tabel, pencarian, unduh CSV.
+
+- Siapa pun bisa membuat akun, tapi hanya email yang tercatat di tabel `maperca.admins` yang bisa membaca data. Pengecekan ada di fungsi `maperca_admin_list`, bukan di tampilan.
+- Menambah admin: jalankan di SQL Editor Supabase `insert into maperca.admins (email) values ('nama@email.com');`, lalu orangnya membuat akun di halaman admin dan membuka tautan konfirmasi di emailnya.
+- Mencabut akses: `delete from maperca.admins where email = 'nama@email.com';`
+- Sesi login hanya disimpan di memori, jadi memuat ulang halaman berarti masuk lagi.
+
 ## File utama
 - app/page.tsx: tampilan, kolom formulir, langkah follow, dan bukti pendaftaran.
 - app/globals.css: desain hijau-hitam, gaya scrapbook, dan tampilan HP.
