@@ -67,10 +67,12 @@ export function SiteFooter({ brand, credit, description, sections, socialLinks, 
         </nav>
       </div>
       <div className="site-footer-bottom">
-        <p>{copyright}</p>
-        <div className="site-footer-credit">
-          <span>{credit.label}</span>
-          <img className="site-footer-logo" src={credit.logo.src} alt={credit.logo.alt} width={credit.logo.width} height={credit.logo.height} loading="lazy" />
+        <div className="site-footer-legal">
+          <p>{copyright}</p>
+          <div className="site-footer-credit">
+            <span>{credit.label}</span>
+            <img className="site-footer-logo" src={credit.logo.src} alt={credit.logo.alt} width={credit.logo.width} height={credit.logo.height} loading="lazy" />
+          </div>
         </div>
       </div>
     </footer>
