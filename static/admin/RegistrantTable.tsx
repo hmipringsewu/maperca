@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Check, Download, Pencil, Search, Trash2 } from "lucide-react";
+import { Download, Pencil, Search, Trash2 } from "lucide-react";
 import type { Registrant, RegistrantEdit } from "../../lib/admin-api";
 import { toCsv } from "../../lib/csv";
 import { DeleteDialog, EditDialog } from "./RegistrantDialogs";
@@ -20,18 +20,15 @@ function formatDate(ymd: string) {
   return plainDateFormat.format(new Date(`${ymd}T00:00:00Z`));
 }
 
-const followDone = (row: Registrant) => !!row.instagram_confirmed_at && !!row.tiktok_confirmed_at;
-
 const csvHeader = [
   "Nomor bukti", "Waktu daftar", "Nama", "HP", "Kampus", "Jurusan",
-  "Tempat lahir", "Tanggal lahir", "Masuk kuliah", "Alamat", "Follow Instagram", "Follow TikTok",
+  "Tempat lahir", "Tanggal lahir", "Masuk kuliah", "Alamat",
 ];
 
 function downloadCsv(rows: Registrant[]) {
   const csv = toCsv(csvHeader, rows.map((row) => [
     row.id, formatDateTime(row.consent_at), row.nama, row.hp, row.kampus, row.jurusan,
     row.tempat_lahir, formatDate(row.tanggal_lahir), formatDate(row.tanggal_kuliah), row.alamat,
-    row.instagram_confirmed_at ? "Sudah" : "Belum", row.tiktok_confirmed_at ? "Sudah" : "Belum",
   ]));
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
   const link = document.createElement("a");
@@ -59,14 +56,14 @@ export function RegistrantTable({ rows, onSave, onDelete }: Props) {
       : rows,
     [rows, needle],
   );
-  const done = rows.filter(followDone).length;
+  const todayKey = new Date().toLocaleDateString("en-CA", jakarta);
+  const today = rows.filter((row) => new Date(row.consent_at).toLocaleDateString("en-CA", jakarta) === todayKey).length;
 
   return (
     <>
       <dl className="admin-stats">
         <div><dt>Total pendaftar</dt><dd>{numberFormat.format(rows.length)}</dd></div>
-        <div><dt>Selesai follow</dt><dd>{numberFormat.format(done)}</dd></div>
-        <div><dt>Belum follow</dt><dd>{numberFormat.format(rows.length - done)}</dd></div>
+        <div><dt>Mendaftar hari ini</dt><dd>{numberFormat.format(today)}</dd></div>
       </dl>
 
       <div className="admin-toolbar">
@@ -102,7 +99,6 @@ export function RegistrantTable({ rows, onSave, onDelete }: Props) {
                 <th scope="col">Lahir</th>
                 <th scope="col">Masuk kuliah</th>
                 <th scope="col">Alamat</th>
-                <th scope="col">Follow</th>
                 <th scope="col">Aksi</th>
               </tr>
             </thead>
@@ -117,11 +113,6 @@ export function RegistrantTable({ rows, onSave, onDelete }: Props) {
                   <td>{row.tempat_lahir}<small>{formatDate(row.tanggal_lahir)}</small></td>
                   <td>{formatDate(row.tanggal_kuliah)}</td>
                   <td className="admin-address">{row.alamat}</td>
-                  <td>
-                    {followDone(row)
-                      ? <span className="admin-badge done"><Check size={13} aria-hidden="true" /> Selesai</span>
-                      : <span className="admin-badge">Belum</span>}
-                  </td>
                   <td>
                     <div className="admin-row-actions">
                       <button type="button" className="admin-icon" aria-label={`Ubah data ${row.nama}`} onClick={() => setEditing(row)}>

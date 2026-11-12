@@ -13,8 +13,6 @@ export type Registrant = {
   tanggal_kuliah: string;
   alamat: string;
   consent_at: string;
-  instagram_confirmed_at: string | null;
-  tiktok_confirmed_at: string | null;
 };
 
 export class SessionExpiredError extends Error {
@@ -99,7 +97,7 @@ export function listRegistrants(session: Session) {
   return adminRpc<Registrant[]>(session, "maperca_admin_list", {}, "Data pendaftar belum bisa dimuat. Coba lagi.");
 }
 
-/** The fields an admin may correct. Receipt number, timestamps and follow status stay as recorded. */
+/** The fields an admin may correct. Receipt number and timestamps stay as recorded. */
 export type RegistrantEdit = Pick<
   Registrant,
   "nama" | "hp" | "kampus" | "jurusan" | "tempat_lahir" | "tanggal_lahir" | "tanggal_kuliah" | "alamat"

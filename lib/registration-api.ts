@@ -1,7 +1,6 @@
 import { supabaseKey, supabaseUrl } from "./supabase-config";
 
-export type RegistrationResult = { id: string; followConfirmed: boolean; tiktokConfirmed: boolean };
-export type FollowPlatform = "instagram" | "tiktok";
+export type RegistrationResult = { id: string };
 
 type RpcError = { code?: string; message?: string };
 
@@ -50,21 +49,5 @@ export function submitRegistration(values: Record<string, string>, requestId: st
       p_consent: true,
     },
     "Pendaftaran belum tersimpan. Silakan coba lagi beberapa saat lagi.",
-  );
-}
-
-export function markFollowOpened(id: string, requestId: string, platform: FollowPlatform) {
-  return rpc<{ opened: boolean }>(
-    "maperca_follow",
-    { p_id: id, p_request_id: requestId, p_action: "open", p_platform: platform },
-    "Konfirmasi belum tersimpan. Silakan coba lagi.",
-  );
-}
-
-export function confirmFollow(id: string, requestId: string) {
-  return rpc<{ followConfirmed: boolean; tiktokConfirmed: boolean }>(
-    "maperca_follow",
-    { p_id: id, p_request_id: requestId, p_action: "confirm" },
-    "Konfirmasi belum tersimpan. Silakan coba lagi.",
   );
 }
