@@ -33,6 +33,23 @@ npm run dev
 Buka http://127.0.0.1:5173 di browser. Untuk menjalankan hasil build, gunakan `npm start`.
 Database lokal terpisah dari database website online.
 
+## Versi GitHub Pages + Supabase
+Situs yang tayang di GitHub Pages adalah build statis; data pendaftar disimpan di Supabase.
+
+```sh
+npm ci
+npm run build:pages     # hasil di dist-pages/
+npm run preview:pages   # buka http://localhost:4173
+```
+
+- Setiap push ke `main` otomatis di-deploy oleh `.github/workflows/pages.yml`.
+- `static/` berisi halaman pembuka build statis; `vite.pages.config.ts` adalah konfigurasinya.
+- `lib/registration-api.ts` mengirim formulir ke dua fungsi Supabase: `maperca_daftar` dan `maperca_follow`.
+- `lib/supabase-config.ts` berisi alamat project dan publishable key. Keduanya memang publik; jangan pernah menaruh service-role key di sana.
+- `supabase/migrations/` berisi SQL tabel dan fungsi. Validasi data diulang di dalam fungsi, jadi tidak bergantung pada browser.
+- Data pendaftar ada di tabel `registrations` pada schema `maperca`. Lihat lewat dashboard Supabase: Table Editor, lalu ganti schema ke `maperca`. Tabel ini tidak bisa dibaca dari internet.
+- `app/api/daftar/` dan `db/` adalah jalur lama (Cloudflare D1). Formulir sudah tidak memanggilnya.
+
 ## File utama
 - app/page.tsx: tampilan, kolom formulir, langkah follow, dan bukti pendaftaran.
 - app/globals.css: desain hijau-hitam, gaya scrapbook, dan tampilan HP.
