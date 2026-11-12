@@ -3,16 +3,17 @@ import type { ReactNode } from "react";
 export type FooterLink = { name: string; href: string; external?: boolean };
 export type FooterSection = { title: string; links: FooterLink[] };
 export type FooterSocial = { label: string; href: string; icon: ReactNode };
+type Image = { src: string; alt: string; width: number; height: number };
 
 type Props = {
-  logo: { src: string; alt: string; width: number; height: number };
-  /** Short credit shown above the logo, e.g. who built the site. */
-  credit?: string;
+  /** Who the site belongs to: emblem plus two lines of name, styled like the header. */
+  brand: { href: string; logo: Image; line1: string; line2: string };
+  /** Who built the site, shown small in the bottom-right corner. */
+  credit: { label: string; logo: Image };
   description: string;
   sections: FooterSection[];
   socialLinks: FooterSocial[];
   copyright: string;
-  topHref?: string;
 };
 
 // External links open in a new tab, so say so for screen readers too.
@@ -26,15 +27,19 @@ function FooterAnchor({ link }: { link: FooterLink }) {
   );
 }
 
-export function SiteFooter({ logo, credit, description, sections, socialLinks, copyright, topHref = "#beranda" }: Props) {
+export function SiteFooter({ brand, credit, description, sections, socialLinks, copyright }: Props) {
   return (
     <footer className="site-footer">
       <div className="site-footer-main">
         <div className="site-footer-brand">
-          <div className="site-footer-credit">
-            {credit && <span>{credit}</span>}
-            <img className="site-footer-logo" src={logo.src} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
-          </div>
+          <a className="brand" href={brand.href}>
+            <img src={brand.logo.src} alt={brand.logo.alt} width={brand.logo.width} height={brand.logo.height} />
+            <span>
+              {brand.line1}
+              <br />
+              <strong>{brand.line2}</strong>
+            </span>
+          </a>
           <p>{description}</p>
           <ul className="site-footer-social">
             {socialLinks.map((social) => (
@@ -63,7 +68,10 @@ export function SiteFooter({ logo, credit, description, sections, socialLinks, c
       </div>
       <div className="site-footer-bottom">
         <p>{copyright}</p>
-        <a href={topHref}>Kembali ke atas ↑</a>
+        <div className="site-footer-credit">
+          <span>{credit.label}</span>
+          <img className="site-footer-logo" src={credit.logo.src} alt={credit.logo.alt} width={credit.logo.width} height={credit.logo.height} loading="lazy" />
+        </div>
       </div>
     </footer>
   );
