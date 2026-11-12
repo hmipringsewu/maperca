@@ -8,6 +8,12 @@
 --   select vault.create_secret('<FONNTE DEVICE TOKEN>', 'fonnte_token', 'Fonnte device token for the registration greeting');
 --
 -- Without that secret the trigger does nothing, so registrations keep working.
+--
+-- The WhatsApp group invite link is stored the same way and is added to the
+-- message when present. It stays out of this public repo on purpose: anyone
+-- who finds an invite link can join the group.
+--
+--   select vault.create_secret('<GROUP INVITE LINK>', 'wa_group_link', 'WhatsApp group invite link for the registration greeting');
 
 create extension if not exists pg_net;
 
@@ -23,6 +29,8 @@ declare
   v_token text;
   v_target text;
   v_message text;
+  v_group text;
+  v_group_line text := '';
   v_request bigint;
 begin
   -- A failed notification must never undo or block a registration.
@@ -46,6 +54,11 @@ begin
       return new;
     end if;
 
+    select decrypted_secret into v_group from vault.decrypted_secrets where name = 'wa_group_link';
+    if v_group is not null and btrim(v_group) <> '' then
+      v_group_line := E'Untuk informasi dan pengumuman, silakan masuk ke grup WhatsApp peserta:\n' || btrim(v_group) || E'\n\n';
+    end if;
+
     -- 08xx / +628xx / 628xx -> 628xx
     v_target := case
       when new.hp like '+%' then substr(new.hp, 2)
@@ -53,17 +66,15 @@ begin
       else new.hp
     end;
 
-    v_message := format(
-      E'Assalamu''alaikum warahmatullahi wabarakatuh, %s.\n\n'
-      'Terima kasih sudah mendaftar *Open Recruitment HMI Cabang Pringsewu*. Data kamu sudah kami terima.\n\n'
-      'Nomor bukti pendaftaran: *%s*\n'
-      'Simpan nomor ini untuk konfirmasi kepada panitia.\n\n'
-      'Panitia akan menghubungi kamu lewat nomor ini untuk informasi selanjutnya. '
-      'Kamu juga bisa mengikuti kami di Instagram dan TikTok @hmipringsewu.\n\n'
-      'Jika kamu tidak merasa mendaftar, abaikan pesan ini.\n\n'
-      E'Wassalamu''alaikum warahmatullahi wabarakatuh.\nHMI Cabang Pringsewu',
-      split_part(new.nama, ' ', 1), new.id
-    );
+    -- Explicit concatenation: adjacent string literals only continue each other while they use the same prefix.
+    v_message := E'Assalamu''alaikum warahmatullahi wabarakatuh, ' || split_part(new.nama, ' ', 1) || E'.\n\n'
+      || E'Terima kasih sudah mendaftar *Open Recruitment HMI Cabang Pringsewu*. Data kamu sudah kami terima.\n\n'
+      || E'Nomor bukti pendaftaran: *' || new.id || E'*\n'
+      || E'Simpan nomor ini untuk konfirmasi kepada panitia.\n\n'
+      || E'Panitia akan menghubungi kamu lewat nomor ini untuk informasi selanjutnya. Kamu juga bisa mengikuti kami di Instagram dan TikTok @hmipringsewu.\n\n'
+      || v_group_line
+      || E'Jika kamu tidak merasa mendaftar, abaikan pesan ini.\n\n'
+      || E'Wassalamu''alaikum warahmatullahi wabarakatuh.\nHMI Cabang Pringsewu';
 
     select net.http_post(
       url := 'https://api.fonnte.com/send',

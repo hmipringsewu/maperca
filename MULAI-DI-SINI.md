@@ -66,6 +66,7 @@ Panitia mengelola data pendaftar di `/admin/` (kode di `static/admin/`): login, 
 Begitu pendaftaran tersimpan, peserta menerima salam dan nomor bukti lewat WhatsApp (Fonnte). Pengirimnya trigger `registrations_notify_whatsapp` di database (`supabase/migrations/20261113000000_maperca_whatsapp_greeting.sql`), bukan kode situs.
 
 - Token Fonnte (token perangkat) disimpan di Supabase Vault dengan nama `fonnte_token`, tidak pernah di kode atau di repo. Memasangnya sekali di SQL Editor: `select vault.create_secret('<TOKEN>', 'fonnte_token', 'Fonnte device token for the registration greeting');`. Mengganti token: `select vault.update_secret((select id from vault.secrets where name = 'fonnte_token'), '<TOKEN BARU>');`
+- Link undangan grup WhatsApp disimpan dengan cara yang sama, nama `wa_group_link`, dan otomatis ditambahkan ke pesan. Sengaja tidak ditulis di repo karena repo ini publik dan siapa pun yang punya link bisa masuk grup. Ganti link: `select vault.update_secret((select id from vault.secrets where name = 'wa_group_link'), '<LINK BARU>');`
 - Tanpa secret itu trigger diam saja, jadi pendaftaran tetap jalan. Kegagalan kirim tidak pernah membatalkan pendaftaran.
 - Pembatas: satu nomor hanya disapa sekali per 24 jam, dan maksimal 200 pesan per jam.
 - Cek hasil kirim (disimpan database sekitar 6 jam): `select id, status_code, content from net._http_response order by created desc limit 5;`
