@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MAPERCA HMI Cabang Pringsewu — Mulai Langkahmu",
-  description: "Kenali HMI, temukan teman baru, dan mulai langkahmu. Pendaftaran Masa Pengenalan Calon Anggota.",
+  title: "Open Recruitment HMI Cabang Pringsewu — Mulai Langkahmu",
+  description: "Kenali HMI, temukan teman baru, dan mulai langkahmu. Pendaftaran Open Recruitment HMI Cabang Pringsewu.",
   icons: {
     icon: "/images/hmi-pringsewu.png",
     shortcut: "/images/hmi-pringsewu.png",

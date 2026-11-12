@@ -6,7 +6,7 @@ type RpcError = { code?: string; message?: string };
 
 async function rpc<T>(name: string, args: Record<string, unknown>, fallback: string): Promise<T> {
   if (!supabaseUrl || !supabaseKey) {
-    throw new Error("Pendaftaran belum dibuka. Silakan hubungi panitia MAPERCA.");
+    throw new Error("Pendaftaran belum dibuka. Silakan hubungi panitia Open Recruitment.");
   }
 
   let response: Response;

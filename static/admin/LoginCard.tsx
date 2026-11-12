@@ -45,7 +45,7 @@ export function LoginCard({ notice, onSignedIn }: Props) {
 
   return (
     <section className="admin-card" aria-labelledby="admin-login-title">
-      <p className="section-label">ADMIN MAPERCA</p>
+      <p className="section-label">ADMIN HMI PRINGSEWU</p>
       <h1 id="admin-login-title">{creating ? "Buat akun admin" : "Masuk admin"}</h1>
       <p className="admin-muted">
         {creating
