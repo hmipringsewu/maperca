@@ -27,7 +27,7 @@
 .admin-ghost:hover:not(:disabled) { background: #eef1e6; }
 .admin-ghost:disabled { opacity: .6; cursor: progress; }
 
-.admin-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0 0 24px; }
+.admin-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 24px; }
 .admin-stats div { background: var(--admin-paper); border: 1px solid var(--admin-line); border-radius: 8px; padding: 16px; }
 .admin-stats dt { color: var(--admin-muted); font-size: 13px; }
 .admin-stats dd { margin: 4px 0 0; font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; }
@@ -46,7 +46,7 @@
 /* The table scrolls inside its own box so the page never scrolls sideways. */
 .admin-table-wrap { overflow-x: auto; background: var(--admin-paper); border: 1px solid var(--admin-line); border-radius: 8px; }
 .admin-table-wrap:focus-visible { outline: 3px solid #dbb536; outline-offset: 2px; }
-.admin-table { width: 100%; min-width: 1160px; border-collapse: collapse; font-size: 13px; }
+.admin-table { width: 100%; min-width: 1060px; border-collapse: collapse; font-size: 13px; }
 .admin-table th, .admin-table td { text-align: left; vertical-align: top; padding: 12px; border-bottom: 1px solid #e6e8dd; }
 .admin-table thead th { position: sticky; top: 0; background: #eef1e6; font-family: 'Space Grotesk', sans-serif; font-size: 12px; letter-spacing: .4px; white-space: nowrap; }
 .admin-table tbody tr:last-child > * { border-bottom: 0; }
