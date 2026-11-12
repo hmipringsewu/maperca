@@ -3,7 +3,7 @@
 The new title reuses what already exists in design/exec-1de8301c-*.png:
   * the real cut-out letters P (gold), E, R, C and M
   * the grain of the stone/paper texture, harvested from inside the real letters
-  * the subtitle line, with the doubled "G" of "PENGGENALAN" removed
+  * optionally the subtitle line (WITH_SUBTITLE), with the doubled "G" of "PENGGENALAN" removed
 Letters the original word does not contain (O, N, U, I, T) are drawn as angular,
 slightly irregular polygons, filled with that harvested texture, and given the
 same thin dark outline.
@@ -22,6 +22,7 @@ SRC = ROOT / "design" / "exec-1de8301c-29b0-411a-bbd6-9fb7885177d0.png"
 OUT_MASTER = ROOT / "design" / "open-recruitment-judul.png"
 OUT_WEB = ROOT / "public" / "images" / "open-recruitment-judul.webp"
 SEED = 11
+WITH_SUBTITLE = False  # the "MASA PENGENALAN CALON ANGGOTA" line under the title
 
 H = 470  # cap height of the original letters, in source pixels
 OUTLINE = np.array([98, 94, 90], np.float32)
@@ -213,9 +214,9 @@ def main():
         place(canvas, l, x, 590 + 160)
         x += l.shape[1] + gap2
 
-    sub = subtitle_without_double_g()
-    sub_img = Image.fromarray(sub, "RGBA")
-    canvas.alpha_composite(sub_img, ((CW - sub_img.width) // 2, 945))
+    if WITH_SUBTITLE:
+        sub_img = Image.fromarray(subtitle_without_double_g(), "RGBA")
+        canvas.alpha_composite(sub_img, ((CW - sub_img.width) // 2, 945))
 
     bbox = canvas.getbbox()
     canvas = canvas.crop((max(0, bbox[0] - 12), max(0, bbox[1] - 12), min(CW, bbox[2] + 12), min(CH, bbox[3] + 12)))
