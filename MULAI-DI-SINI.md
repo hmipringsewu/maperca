@@ -62,6 +62,16 @@ Panitia mengelola data pendaftar di `/admin/` (kode di `static/admin/`): login, 
 - Mencabut akses: `delete from maperca.admins where email = 'nama@email.com';`
 - Sesi login hanya disimpan di memori, jadi memuat ulang halaman berarti masuk lagi.
 
+### Pesan WhatsApp otomatis
+Begitu pendaftaran tersimpan, peserta menerima salam dan nomor bukti lewat WhatsApp (Fonnte). Pengirimnya trigger `registrations_notify_whatsapp` di database (`supabase/migrations/20261113000000_maperca_whatsapp_greeting.sql`), bukan kode situs.
+
+- Token Fonnte (token perangkat) disimpan di Supabase Vault dengan nama `fonnte_token`, tidak pernah di kode atau di repo. Memasangnya sekali di SQL Editor: `select vault.create_secret('<TOKEN>', 'fonnte_token', 'Fonnte device token for the registration greeting');`. Mengganti token: `select vault.update_secret((select id from vault.secrets where name = 'fonnte_token'), '<TOKEN BARU>');`
+- Tanpa secret itu trigger diam saja, jadi pendaftaran tetap jalan. Kegagalan kirim tidak pernah membatalkan pendaftaran.
+- Pembatas: satu nomor hanya disapa sekali per 24 jam, dan maksimal 200 pesan per jam.
+- Cek hasil kirim (disimpan database sekitar 6 jam): `select id, status_code, content from net._http_response order by created desc limit 5;`
+- Teks pesan ada di fungsi `maperca.notify_whatsapp`; ubah dengan migrasi baru.
+- Paket Fonnte gratis: kuota 1.000 pesan, perangkat harus tetap terhubung.
+
 ## File utama
 - app/page.tsx: tampilan, kolom formulir, dan bukti pendaftaran.
 - app/globals.css: desain hijau-hitam, gaya scrapbook, dan tampilan HP.
