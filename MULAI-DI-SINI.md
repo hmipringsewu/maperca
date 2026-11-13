@@ -57,9 +57,9 @@ Panitia mengelola data pendaftar di `/admin/` (kode di `static/admin/`): login, 
 - Ubah dan hapus lewat fungsi `maperca_admin_update` dan `maperca_admin_delete`. Validasinya sama dengan formulir publik karena keduanya memakai `maperca.clean_registration`.
 - Setiap perubahan dan penghapusan tercatat di tabel `maperca.audit_log`: siapa, kapan, dan isi data sebelum diubah. Data yang terhapus bisa disalin kembali dari kolom `before`.
 
-- Siapa pun bisa membuat akun, tapi hanya email yang tercatat di tabel `maperca.admins` yang bisa membaca data. Pengecekan ada di fungsi `maperca_admin_list`, bukan di tampilan.
-- Menambah admin: jalankan di SQL Editor Supabase `insert into maperca.admins (email) values ('nama@email.com');`, lalu orangnya membuat akun di halaman admin dan membuka tautan konfirmasi di emailnya.
-- Mencabut akses: `delete from maperca.admins where email = 'nama@email.com';`
+- Halaman ini hanya untuk masuk. Akun tidak bisa dibuat dari sini: pendaftaran akun baru dimatikan di pengaturan Auth Supabase, dan trigger `maperca_only_admin_accounts` menolak akun mana pun yang emailnya tidak ada di `maperca.admins` (termasuk akun anonim), jadi kalaupun pendaftaran dinyalakan lagi, orang lain tetap tidak bisa masuk. Pembaca data dicek di fungsi `maperca_admin_list`.
+- Menambah admin: (1) `insert into maperca.admins (email) values ('nama@email.com');` (2) nyalakan sebentar Authentication, Sign In / Providers, "Allow new users to sign up", (3) orangnya membuat akun lewat Supabase (halaman ini tidak menyediakannya; undang dari Authentication, Users, Invite user), (4) matikan lagi pendaftaran.
+- Mencabut akses: `delete from maperca.admins where email = 'nama@email.com';` lalu hapus akunnya di Authentication, Users.
 - Sesi login hanya disimpan di memori, jadi memuat ulang halaman berarti masuk lagi.
 
 ## File utama
