@@ -19,6 +19,30 @@ create extension if not exists pg_net;
 
 alter table maperca.registrations add column if not exists wa_request_id bigint;
 
+-- The text of the greeting, kept apart from the trigger so it can be previewed:
+--   select maperca.whatsapp_message('Budi Santoso', 'MPR-0123456789AB', 'https://chat.whatsapp.com/...');
+create or replace function maperca.whatsapp_message(p_nama text, p_id text, p_group text)
+returns text
+language sql
+immutable
+set search_path = ''
+as $$
+  select E'Assalamu''alaikum warahmatullahi wabarakatuh, ' || split_part(p_nama, ' ', 1) || E'.\n\n'
+    || E'Terima kasih sudah mendaftar *Open Recruitment HMI Cabang Pringsewu*. Data kamu sudah kami terima.\n\n'
+    || E'Nomor bukti pendaftaran: *' || p_id || E'*\n'
+    || E'Simpan nomor ini untuk konfirmasi kepada panitia.\n\n'
+    || E'Panitia akan menghubungi kamu lewat nomor ini untuk informasi selanjutnya. Kamu juga bisa mengikuti kami di Instagram dan TikTok @hmipringsewu.\n\n'
+    || case
+         when p_group is not null and btrim(p_group) <> ''
+           then E'Untuk informasi dan pengumuman, silakan masuk ke grup WhatsApp peserta:\n' || btrim(p_group) || E'\n\n'
+         else ''
+       end
+    || E'Jika kamu tidak merasa mendaftar, abaikan pesan ini.\n\n'
+    || E'Wassalamu''alaikum warahmatullahi wabarakatuh.\nHMI Cabang Pringsewu';
+$$;
+
+revoke all on function maperca.whatsapp_message(text, text, text) from public, anon, authenticated;
+
 create or replace function maperca.notify_whatsapp()
 returns trigger
 language plpgsql
@@ -27,10 +51,8 @@ set search_path = ''
 as $$
 declare
   v_token text;
-  v_target text;
-  v_message text;
   v_group text;
-  v_group_line text := '';
+  v_target text;
   v_request bigint;
 begin
   -- A failed notification must never undo or block a registration.
@@ -55,9 +77,6 @@ begin
     end if;
 
     select decrypted_secret into v_group from vault.decrypted_secrets where name = 'wa_group_link';
-    if v_group is not null and btrim(v_group) <> '' then
-      v_group_line := E'Untuk informasi dan pengumuman, silakan masuk ke grup WhatsApp peserta:\n' || btrim(v_group) || E'\n\n';
-    end if;
 
     -- 08xx / +628xx / 628xx -> 628xx
     v_target := case
@@ -66,19 +85,9 @@ begin
       else new.hp
     end;
 
-    -- Explicit concatenation: adjacent string literals only continue each other while they use the same prefix.
-    v_message := E'Assalamu''alaikum warahmatullahi wabarakatuh, ' || split_part(new.nama, ' ', 1) || E'.\n\n'
-      || E'Terima kasih sudah mendaftar *Open Recruitment HMI Cabang Pringsewu*. Data kamu sudah kami terima.\n\n'
-      || E'Nomor bukti pendaftaran: *' || new.id || E'*\n'
-      || E'Simpan nomor ini untuk konfirmasi kepada panitia.\n\n'
-      || E'Panitia akan menghubungi kamu lewat nomor ini untuk informasi selanjutnya. Kamu juga bisa mengikuti kami di Instagram dan TikTok @hmipringsewu.\n\n'
-      || v_group_line
-      || E'Jika kamu tidak merasa mendaftar, abaikan pesan ini.\n\n'
-      || E'Wassalamu''alaikum warahmatullahi wabarakatuh.\nHMI Cabang Pringsewu';
-
     select net.http_post(
       url := 'https://api.fonnte.com/send',
-      body := jsonb_build_object('target', v_target, 'message', v_message),
+      body := jsonb_build_object('target', v_target, 'message', maperca.whatsapp_message(new.nama, new.id, v_group)),
       headers := jsonb_build_object('Content-Type', 'application/json', 'Authorization', v_token)
     ) into v_request;
 
