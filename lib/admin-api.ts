@@ -32,12 +32,7 @@ type AuthBody = {
 const authMessages: Record<string, string> = {
   invalid_credentials: "Email atau kata sandi salah.",
   email_not_confirmed: "Email belum dikonfirmasi. Buka tautan di email konfirmasi, lalu masuk lagi.",
-  user_already_exists: "Email ini sudah punya akun. Silakan masuk.",
-  weak_password: "Kata sandi terlalu lemah. Pakai minimal 8 karakter.",
-  over_email_send_rate_limit: "Terlalu banyak email konfirmasi dikirim. Coba lagi sekitar satu jam lagi.",
   over_request_rate_limit: "Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.",
-  signup_disabled: "Pembuatan akun sedang ditutup. Hubungi pengelola.",
-  email_address_invalid: "Alamat email tidak valid.",
 };
 
 async function request(path: string, init: RequestInit, token?: string) {
@@ -68,13 +63,6 @@ export async function signIn(email: string, password: string): Promise<Session> 
   const data = await auth("/auth/v1/token?grant_type=password", email, password, "Belum bisa masuk. Coba lagi.");
   if (!data.access_token) throw new Error("Belum bisa masuk. Coba lagi.");
   return { accessToken: data.access_token, email: data.user?.email ?? email };
-}
-
-/** Returns a session when the project confirms emails automatically, otherwise null. */
-export async function signUp(email: string, password: string, returnTo: string): Promise<Session | null> {
-  const path = `/auth/v1/signup?redirect_to=${encodeURIComponent(returnTo)}`;
-  const data = await auth(path, email, password, "Akun belum bisa dibuat. Coba lagi.");
-  return data.access_token ? { accessToken: data.access_token, email } : null;
 }
 
 export async function signOut(session: Session) {
